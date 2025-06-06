@@ -1,0 +1,3 @@
+Scenario,Cumulative Reward (Action Penalty Based),Avg Action Penalty per Step,Final Step Action Penalty,Control Effort (sum_a^2)
+PINN with PPO,-6.8993e-07,2.4049e-08,2.4066e-08,6.8993e-05
+PINN Baseline,0.0000e+00,0.0000e+00,0.0000e+00,0.0000e+00

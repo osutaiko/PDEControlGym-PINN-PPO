@@ -1,0 +1,2 @@
+Scenario,Mean Cumulative Reward,Std Cumulative Reward,Mean Episode Length,Mean Final Distance to Target,Mean Total Action Penalty
+PPO on SimpleControlEnv,-1.3090e+02,2.7017e+01,2.0000e+02,7.2389e-01,2.2242e+01

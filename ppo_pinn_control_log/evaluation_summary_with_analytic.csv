@@ -1,0 +1,3 @@
+Scenario,Cumulative Reward,Avg MSE vs Target,Final MSE vs Target,Control Effort (sum_a^2),"MSE vs Analytic (u-profile, x=0.5, T_final)"
+PINN with PPO,-6.8993e-07,2.4049e-08,2.4066e-08,6.8993e-05,2.0219e-02
+PINN Baseline,0.0000e+00,0.0000e+00,0.0000e+00,0.0000e+00,2.0282e-02
