@@ -12,7 +12,7 @@ In **PINN-PPO**, we add a lightweight Physics-Informed Neural Network (PINN) res
    - `python 3_compare_pinn_vs_standalone_ppo.py` : Evaluate and compare the trained PINN-PPO and standalone PPO agents
 
 ## Data Interpretation
-After training, multiple windows with diagrams will pop up (also automatically saved in the `pde_control_gym` directory). 
+After training, multiple windows with useful diagrams will pop up (also automatically saved in the `pde_control_gym` directory). 
  
 ### Field diagrams
 Visualizes the controlled Navier-Stokes flow (u, v, p) for each timestamp. Ideally, the flow should be stable and symmetrical, and respect the boundary conditions (e.g. velocity along x = 0, 1 should be zero).
@@ -33,11 +33,11 @@ Visualizes the state variables over time.
 
 
 ## Contributors
-- Hyojin Kim
-- Chankyu Lee
-- Minjoon Jeong
-- Eungi Hong
-- Dongheon Han
+- Hyojin Kim (김효진, 20255127)
+- Chankyu Lee (이찬규, 20190514)
+- Minjoon Jeong (정민준, 20230654)
+- Dongheon Han (한동헌, 20220722)
+- Eungi Hong (홍은기, 20210698)
 
 ## [Original Repository](https://github.com/lukebhan/PDEControlGym)
 
