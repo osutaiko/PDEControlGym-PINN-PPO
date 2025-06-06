@@ -5,7 +5,7 @@ In **PINN-PPO**, we add a lightweight Physics-Informed Neural Network (PINN) res
 
 ## Getting Started
 1. `pip install -e .` : Install dependencies
-2. `cd pde_control_gym` : Navigate to the working directory (PDEControlGym-main)
+2. `cd pde_control_gym` : Navigate to the working directory
 3. Train/visualize the models.
    - `python 1_train_time_control_pinn.py` : Train the PINN agent for time-dependent control
    - `python 2_ppo_with_pinn_env.py` : Train the PINN-PPO agent
