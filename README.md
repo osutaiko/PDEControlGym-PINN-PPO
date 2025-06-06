@@ -6,13 +6,31 @@ In **PINN-PPO**, we add a lightweight Physics-Informed Neural Network (PINN) res
 ## Getting Started
 1. `pip install -e .` : Install dependencies
 2. `cd pde_control_gym` : Navigate to the working directory (PDEControlGym-main)
-3. Train the models:
-   - `python 0_ppo_simple_env_trainer.py` : Train the standalone PPO agent
+3. Train/visualize the models.
    - `python 1_train_time_control_pinn.py` : Train the PINN agent for time-dependent control
    - `python 2_ppo_with_pinn_env.py` : Train the PINN-PPO agent
    - `python 3_compare_pinn_vs_standalone_ppo.py` : Evaluate and compare the trained PINN-PPO and standalone PPO agents
-     
-   After training, multiple windows with diagrams will pop up (the same will also be saved in the `final_comparison_log` folder). 
+
+## Data Interpretation
+After training, multiple windows with diagrams will pop up (also automatically saved in the `pde_control_gym` directory). 
+ 
+### Field diagrams
+Visualizes the controlled Navier-Stokes flow (u, v, p) for each timestamp. Ideally, the flow should be stable and symmetrical, and respect the boundary conditions (e.g. velocity along x = 0, 1 should be zero).
+
+![image](https://github.com/user-attachments/assets/a2f738e8-85a6-4a3b-80e9-88244b7cbc84)
+
+
+### Control action comparison graph
+Compares the control effort (`action[0]`) for each timestamp. In practice, higher absolute values of the control action is undesirable as it indicates more effort to control the physical system.
+
+![image](https://github.com/user-attachments/assets/4a255fcc-447d-4064-b523-35f2a924de16)
+
+
+### State variable evolution graph
+Visualizes the state variables over time. 
+
+![image](https://github.com/user-attachments/assets/db1b4a0a-ef8a-442e-a775-4e26119ddb37)
+
 
 ## Contributors
 - Hyojin Kim
