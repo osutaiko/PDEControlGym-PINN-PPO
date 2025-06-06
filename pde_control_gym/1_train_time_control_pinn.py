@@ -4,11 +4,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
-import pandas as pd # <<<< pandas 임포트 추가
+import pandas as pd
 
 # --- 기본 환경 설정 ---
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"--- PINN 학습 장치: {DEVICE} ---")
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # --- 물리/격자 상수 및 시뮬레이션 파라미터 ---
 RHO = 1.0
@@ -22,8 +23,8 @@ T_MAX = 0.2
 # PINN 학습 파라미터
 LEARNING_RATE_ADAM = 1e-3
 LEARNING_RATE_LBFGS = 1.0
-NUM_EPOCHS_ADAM = 15000 # 예시 (실제 학습 시에는 더 늘리거나 조절)
-NUM_LBFGS_STEPS = 5000  # 예시 (실제 학습 시에는 더 늘리거나 조절)
+NUM_EPOCHS_ADAM = 15000
+NUM_LBFGS_STEPS = 5000
 LOG_FREQUENCY = 1000
 LBFGS_LOG_FREQUENCY = 100 # L-BFGS는 더 자주 로깅할 수 있음 (스텝 기준)
 
@@ -37,8 +38,8 @@ NUM_CONTROL_PARAMS = 1
 CONTROL_PARAM_MIN = -0.5
 CONTROL_PARAM_MAX = 0.5
 
-MODEL_SAVE_PATH = "time_control_pinn.pth"
-PINN_TRAINING_LOG_SAVE_PATH = "pinn_training_log.csv" # <<<< 로그 파일 저장 경로 변수 추가
+MODEL_SAVE_PATH = os.path.join(ROOT_DIR, "time_control_pinn.pth")
+PINN_TRAINING_LOG_SAVE_PATH = os.path.join(ROOT_DIR, "pinn_training_log.csv") 
 
 # --- 시간 및 제어 인지 PINN 모델 정의 ---
 class TimeControlPINN_Trainer(nn.Module):
@@ -92,7 +93,7 @@ def generate_training_data(device):
 
     return domain_points, inlet_points, outlet_points, wall_bottom_points, wall_top_points, initial_points
 
-# --- PDE 잔차 및 손실 함수 (오류 수정 버전) ---
+# --- PDE 잔차 및 손실 함수 ---
 def get_pde_residuals_and_losses(model, domain_points_with_grad):
     xytc = domain_points_with_grad
 
@@ -171,7 +172,7 @@ if __name__ == "__main__":
     domain_pts, inlet_pts, outlet_pts, wall_b_pts, wall_t_pts, initial_pts = generate_training_data(DEVICE)
     print("학습 데이터 생성 완료.")
 
-    pinn_training_logs = [] # <<<< 로그 저장을 위한 리스트 초기화
+    pinn_training_logs = []
 
     # --- 1단계: Adam 옵티마이저 사용 ---
     print(f"PINN 학습 시작 (Adam, 총 {NUM_EPOCHS_ADAM} 에폭)...")
@@ -180,7 +181,6 @@ if __name__ == "__main__":
     for epoch in tqdm(range(NUM_EPOCHS_ADAM), desc="Adam Training"):
         optimizer_adam.zero_grad()
 
-        # <<<< get_pde_residuals_and_losses가 이제 여러 값을 반환함
         loss_pde_total, loss_pde_c, loss_pde_mx, loss_pde_my = get_pde_residuals_and_losses(pinn_model_trainer, domain_pts)
         loss_bc, loss_ic = get_boundary_initial_losses(pinn_model_trainer, inlet_pts, outlet_pts,
                                                        wall_b_pts, wall_t_pts, initial_pts)
@@ -196,8 +196,8 @@ if __name__ == "__main__":
                 'epoch_or_step': epoch + 1,
                 'total_loss': total_loss.item(),
                 'pde_loss': loss_pde_total.item(),
-                'pde_loss_continuity': loss_pde_c.item(), # 개별 PDE 항 로깅
-                'pde_loss_momentum_x': loss_pde_mx.item(),# 개별 PDE 항 로깅
+                'pde_loss_continuity': loss_pde_c.item(),
+                'pde_loss_momentum_x': loss_pde_mx.item(),
                 'pde_loss_momentum_y': loss_pde_my.item(),# 개별 PDE 항 로깅
                 'bc_loss': loss_bc.item(),
                 'ic_loss': loss_ic.item()
@@ -283,7 +283,7 @@ if __name__ == "__main__":
     else:
         print("저장할 PINN 학습 로그 데이터가 없습니다.")
 
-    # --- 간단한 테스트 (선택적) ---
+    # --- 간단한 테스트 ---
     print("\n--- 학습된 모델 테스트 (예시) ---")
     test_x = torch.tensor([[0.5]], device=DEVICE)
     test_y = torch.tensor([[0.5]], device=DEVICE)

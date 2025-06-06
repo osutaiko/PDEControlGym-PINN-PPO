@@ -11,11 +11,12 @@ import pandas as pd
 # --- 기본 환경 설정 ---
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"--- 시각화/평가 장치: {DEVICE} ---")
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # --- 경로 설정 ---
-PRETRAINED_PINN_MODEL_PATH = "time_control_pinn.pth"
-PINN_PPO_POLICY_FILE_PATH = "ppo_pinn_control_policy.zip"
-STANDALONE_PPO_POLICY_FILE_PATH = "ppo_standalone_policy.zip"
+PRETRAINED_PINN_MODEL_PATH = os.path.join(ROOT_DIR, "time_control_pinn.pth")
+PINN_PPO_POLICY_FILE_PATH = os.path.join(ROOT_DIR, "ppo_pinn_control_policy.zip")
+STANDALONE_PPO_POLICY_FILE_PATH = os.path.join(ROOT_DIR, "ppo_standalone_policy.zip")
 
 EVALUATION_RESULTS_SAVE_PATH = "./final_comparison_log/ppo_scenario_comparison.csv"
 PLOT_SAVE_DIR = "./final_comparison_log/"

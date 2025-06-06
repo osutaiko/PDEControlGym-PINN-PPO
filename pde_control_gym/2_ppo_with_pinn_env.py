@@ -11,6 +11,7 @@ from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"--- DEVICE: {DEVICE} ---")
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 class TimeControlPINN_EnvironmentModel(nn.Module):
     def __init__(self, input_dim):
@@ -146,7 +147,7 @@ class PINNNavierStokesEnv(gym.Env):
         return self.current_uv_field, reward, done, truncated, {}
 
 if __name__ == "__main__":
-    PRETRAINED_PINN_MODEL_PATH = "time_control_pinn.pth"
+    PRETRAINED_PINN_MODEL_PATH = os.path.join(ROOT_DIR, "time_control_pinn.pth")
 
     if not os.path.exists(PRETRAINED_PINN_MODEL_PATH):
         print(f"오류: 사전 학습된 PINN 모델({PRETRAINED_PINN_MODEL_PATH})을 찾을 수 없습니다.")
@@ -242,7 +243,7 @@ if __name__ == "__main__":
         print(f"PPO 학습 ({PPO_TOTAL_TIMESTEPS} 타임스텝) 시작...")
         ppo_model.learn(total_timesteps=PPO_TOTAL_TIMESTEPS,
                         callback=[checkpoint_callback, eval_callback], 
-                        progress_bar=True)
+                        progress_bar=False)
         ppo_model.save(PPO_POLICY_FILE)
         print(f"PPO 정책 저장 완료: {PPO_POLICY_FILE}")
 

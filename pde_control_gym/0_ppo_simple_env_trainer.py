@@ -11,14 +11,15 @@ import pandas as pd
 # --- 기본 환경 설정 ---
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"--- 시각화/평가 장치: {DEVICE} ---")
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # --- 경로 설정 ---
 # PINN with PPO 관련 경로
-PRETRAINED_PINN_MODEL_PATH = "time_control_pinn.pth" # 사용자 모델 경로
-PINN_PPO_POLICY_FILE_PATH = "ppo_pinn_control_policy.zip" # 사용자 정책 경로
+PRETRAINED_PINN_MODEL_PATH = os.path.join(ROOT_DIR, "time_control_pinn.pth") # 사용자 모델 경로
+PINN_PPO_POLICY_FILE_PATH = os.path.join(ROOT_DIR, "ppo_pinn_control_policy.zip") # 사용자 정책 경로
 
 # Standalone PPO 관련 경로
-STANDALONE_PPO_POLICY_FILE_PATH = "ppo_standalone_policy.zip" # ppo_standalone_trainer.py 에서 저장한 파일
+STANDALONE_PPO_POLICY_FILE_PATH = os.path.join(ROOT_DIR, "ppo_standalone_policy.zip") # ppo_standalone_trainer.py 에서 저장한 파일
 
 EVALUATION_RESULTS_SAVE_PATH = "./final_comparison_log/ppo_scenario_comparison.csv"
 PLOT_SAVE_DIR = "./final_comparison_log/"
@@ -67,8 +68,6 @@ class PINNNavierStokesEnv(gym.Env):
         pinn_input_dim = 2 + 1 + self.num_control_params # x, y, t, c
         self.pinn_model = TimeControlPINN_Model(input_dim=pinn_input_dim).to(DEVICE)
         try:
-            # PyTorch < 1.13 에서는 weights_only=True 사용 불가. 필요시 버전에 맞게 조정.
-            # 경고를 인지하고 있으며, 파일 소스를 신뢰한다고 가정합니다.
             self.pinn_model.load_state_dict(torch.load(pretrained_pinn_model_path, map_location=DEVICE))
         except FileNotFoundError:
             raise FileNotFoundError(f"PINN 모델 파일 없음: {pretrained_pinn_model_path}")
@@ -83,7 +82,6 @@ class PINNNavierStokesEnv(gym.Env):
         )
         self.nx_obs = env_config.get("nx_obs", 20)
         self.ny_obs = env_config.get("ny_obs", 20)
-        # Observation은 u,v,p 전체 필드입니다. PPO 에이전트는 이 중 일부만 사용할 수 있습니다.
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.nx_obs, self.ny_obs, 3), dtype=np.float32)
 
         self.domain_L_pinn = env_config.get("domain_L_pinn", 1.0)
@@ -135,7 +133,7 @@ class PINNNavierStokesEnv(gym.Env):
         info = {"mse_info_action_penalty": action_penalty, "control_action": np.copy(self.current_control_action)}
         return current_uvp_field, reward, done, truncated, info
 
-# --- 간단한 Gym 환경 정의 (Standalone PPO용) ---
+# --- Gym 환경 정의 (Standalone PPO용) ---
 class SimpleControlEnv(gym.Env):
     metadata = {'render_modes': ['human'], 'render_fps': 30}
     def __init__(self, env_config):
@@ -265,8 +263,8 @@ def plot_pinn_fields_comparison(obs_pinn_ppo, obs_baseline, grid_x_np, grid_y_np
     num_rows = 1
     scenario_data = {"PINN-PPO": obs_pinn_ppo}
     if obs_baseline is not None:
-        num_rows = 2 # This logic might need adjustment if only one scenario is plotted but needs a title row.
-        scenario_data["Baseline"] = obs_baseline # This part seems intended for comparing two PINN-like results.
+        num_rows = 2
+        scenario_data["Baseline"] = obs_baseline
 
     if obs_pinn_ppo is None or obs_pinn_ppo.shape[0] == 0:
         print("PINN-PPO 시뮬레이션 데이터가 없어 필드 플롯을 생성할 수 없습니다.")
@@ -414,7 +412,7 @@ if __name__ == "__main__":
     simple_env_config_vis = {
         "max_episode_steps": int(env_config_pinn_ppo["T_sim"] / env_config_pinn_ppo["dt_sim"]),
         "observation_dim": 4, "action_dim": 1,
-        "target_state": [0.0] * 4, # 보상에는 사용되지 않지만, 참고용으로 유지
+        "target_state": [0.0] * 4, # 보상에는 사용되지 않지만 참고용으로 유지
         "action_scale": 0.2, "state_decay": 0.01, "noise_level": 0.05,
         "reward_action_penalty_scale": -0.01, # PINNNavierStokesEnv와 유사한 페널티 스케일
         "dt_sim_for_plot": env_config_pinn_ppo["dt_sim"]
@@ -479,7 +477,7 @@ if __name__ == "__main__":
 
             for t_idx_plot in time_indices_pinn_plot:
                 print(f"\n--- PINN with PPO 유동장(u,v,p) 필드 (Time Step Index: {t_idx_plot}) ---")
-                plot_pinn_fields_comparison( # 함수 이름을 plot_pinn_fields_comparison 으로 사용
+                plot_pinn_fields_comparison(
                     obs_pinn_hist_data, None, 
                     grid_x_pinn_plot, grid_y_pinn_plot,
                     time_step_index=t_idx_plot, dt_sim=env_config_pinn_ppo["dt_sim"],
